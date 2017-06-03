@@ -13,6 +13,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TimeTable {
+	private XSSFWorkbook workbook = null;
+    private XSSFSheet sheet = null;
 	private String fileName;
 	private int rowNum;
 	private int columnNum;
@@ -26,8 +28,7 @@ public class TimeTable {
 	}
 	public void setExcelTable(){
 		try{
-			XSSFWorkbook workbook = null;
-		    XSSFSheet sheet = null;
+			
 		    XSSFRow row = null;
 		    XSSFCell cell = null;
 	
@@ -45,14 +46,37 @@ public class TimeTable {
 			columnNum = sheet.getRow(0).getPhysicalNumberOfCells();
 			excelTable = new String[rowNum][columnNum];
 			
+			
+			
 			for(int i = 0 ; i < rowNum; i++){
 				row = sheet.getRow(i);
 				columnNum = Math.max(columnNum, row.getPhysicalNumberOfCells());
 				for(int j = 0 ; j < columnNum; j++){
 					cell = row.getCell(j);
-					/*
-					 * switch here
-					 * */
+					switch(cell.getCellType()){
+		            case XSSFCell.CELL_TYPE_NUMERIC :
+		                excelTable[i][j] = String.valueOf((long)Math.floor(cell.getNumericCellValue() + 0.5d));
+		                break;
+		               
+		            case XSSFCell.CELL_TYPE_STRING :
+		            	excelTable[i][j] = String.valueOf(cell.getStringCellValue());
+		                break;
+		            
+		            case XSSFCell.CELL_TYPE_BLANK :
+		            	excelTable[i][j] = "";
+		                break;
+		               
+		            case XSSFCell.CELL_TYPE_ERROR :
+		            	excelTable[i][j] = String.valueOf(cell.getErrorCellString());
+		                break;
+		               
+		            case XSSFCell.CELL_TYPE_FORMULA :
+		            	excelTable[i][j] = String.valueOf(cell.getCellFormula());
+		            	break;
+		            
+		            default :
+		                break;
+		            }
 				}
 			}
 		}catch(NullPointerException e){
@@ -64,7 +88,7 @@ public class TimeTable {
 		System.out.println("xlsx file name is : "+fileName);
 		for(int i = 0; i < rowNum ; i++){
 			for(int j = 0 ; j < columnNum ; j++){
-				System.out.print(excelTable[i][j]+"\t");
+				System.out.printf("%"+(sheet.getColumnWidthInPixels(j)/10 + 6)+"s",excelTable[i][j]);
 			}
 			System.out.print("\n");
 		}
