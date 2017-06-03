@@ -13,65 +13,62 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TimeTable {
-	private File file;
-    private XSSFWorkbook wb = null;
-    private XSSFSheet ws = null;
-    private XSSFRow xr = null;
-    private XSSFCell xc = null;
-        
-    @SuppressWarnings("deprecation")
+	private String fileName;
+	private int rowNum;
+	private int columnNum;
+	private String[][] excelTable;
+	@SuppressWarnings("deprecation")
+	public TimeTable(){}
+	
 	public TimeTable(String fileName){
-    	
-    	System.out.println(fileName);
-		try {//엑셀 파일 오픈
-			URL url = this.getClass().getResource(fileName);
-			System.out.println(url);
-			file = new File(url.getPath());
-			wb = new XSSFWorkbook(new FileInputStream(file));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		int sheetNum = wb.getNumberOfSheets();
-		ws = wb.getSheetAt(0);
-		int rows = ws.getPhysicalNumberOfRows();
-		
-		for(int i = 0 ; i < rows ; i++){
-			xr = ws.getRow(i);
-			int cells = xr.getPhysicalNumberOfCells();
-			for(int j = 0 ; j < cells ; j++){
-				xc = xr.getCell(j);
-				switch(xc.getCellType()){
-				case XSSFCell.CELL_TYPE_NUMERIC :
-					System.out.println(xc.getNumericCellValue());
-					break;
-					
-				case XSSFCell.CELL_TYPE_STRING :
-					System.out.println(xc.getStringCellValue());
-					break;
-				
-				case XSSFCell.CELL_TYPE_BLANK :
-					System.out.println(xc.getBooleanCellValue());
-					break;
-					
-				case XSSFCell.CELL_TYPE_ERROR :
-					System.out.println(xc.getErrorCellString());
-					break;
-					
-				case XSSFCell.CELL_TYPE_FORMULA :
-					System.out.println(xc.getCellFormula());
-					break;
-				
-				default :
-					break;
+		this.fileName = fileName;
+		setExcelTable();
+	}
+	public void setExcelTable(){
+		try{
+			XSSFWorkbook workbook = null;
+		    XSSFSheet sheet = null;
+		    XSSFRow row = null;
+		    XSSFCell cell = null;
+	
+		    
+	    	URL url = this.getClass().getResource(fileName);
+			try {//엑셀 파일 오픈
+				workbook = new XSSFWorkbook(new FileInputStream(new File(url.getPath())));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			sheet = workbook.getSheetAt(0);
+			rowNum = sheet.getPhysicalNumberOfRows();
+			columnNum = sheet.getRow(0).getPhysicalNumberOfCells();
+			excelTable = new String[rowNum][columnNum];
+			
+			for(int i = 0 ; i < rowNum; i++){
+				row = sheet.getRow(i);
+				columnNum = Math.max(columnNum, row.getPhysicalNumberOfCells());
+				for(int j = 0 ; j < columnNum; j++){
+					cell = row.getCell(j);
+					/*
+					 * switch here
+					 * */
 				}
 			}
+		}catch(NullPointerException e){
+			e.printStackTrace();
 		}
-    }
-	public static void main(String[] args){
-		TimeTable tt = new TimeTable(args[0]);
+	}
 	
+	public void showExcelTable(){
+		System.out.println("xlsx file name is : "+fileName);
+		for(int i = 0; i < rowNum ; i++){
+			for(int j = 0 ; j < columnNum ; j++){
+				System.out.print(excelTable[i][j]+"\t");
+			}
+			System.out.print("\n");
+		}
 	}
 }
+	
+
